@@ -119,7 +119,7 @@ def extract_local_maxima(H, threshold, max_number=True):
     absolute_threshold = threshold*H.max()
     maxima = []
     for row in range(1, H.shape[0]-1):
-        if len(maxima) > 300 and max_number: 
+        if len(maxima) > 100 and max_number: 
             break
 
         for col in range(1, H.shape[1]-1):
