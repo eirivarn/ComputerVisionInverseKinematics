@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import convolve2d 
+import cv2
 
 def remove_close_points(x_cords, y_cords, threshold): 
 
@@ -25,7 +26,6 @@ def remove_close_points(x_cords, y_cords, threshold):
     filtered_x_coords, filtered_y_coords = filtered_coordinates.T
 
     return filtered_x_coords, filtered_y_coords
-
 
 def im2double(im):
     """
@@ -83,7 +83,6 @@ def harrisResponse(I, sigma_D, sigma_I, alpha):
 
     return response
 
-
 def gaussian(I, sigma):
     """
     Applies a 2-D Gaussian blur with standard deviation sigma to
@@ -107,7 +106,7 @@ def extract_edges(Ix, Iy, Im, threshold):
     theta = np.arctan2(Iy[y,x], Ix[y,x])
     return x, y, theta
 
-def extract_local_maxima(H, threshold):
+def extract_local_maxima(H, threshold, max_number=True):
     """
     Returns the row and column of cells whose value is strictly greater than its
     8 immediate neighbors, and greater than or equal to a threshold. The threshold
@@ -120,7 +119,7 @@ def extract_local_maxima(H, threshold):
     absolute_threshold = threshold*H.max()
     maxima = []
     for row in range(1, H.shape[0]-1):
-        if len(maxima) > 300: 
+        if len(maxima) > 300 and max_number: 
             break
 
         for col in range(1, H.shape[1]-1):
@@ -164,7 +163,6 @@ def draw_line(theta, rho, **args):
         x2,y2 = clamp(x2, y2, x_min, x_max, rho, c, s)
     plt.plot([x1, x2], [y1, y2], **args)
 
-
 def compute_filter_constants(sigma): 
     h = int(np.ceil(3*sigma))
     x = np.arange(2*h + 1) - h
@@ -173,7 +171,6 @@ def compute_filter_constants(sigma):
     d = -x*e/(sigma*sigma*sigma*np.sqrt(2*np.pi))
 
     return h, x, e, g, d
-
 
 def derivative_of_gaussian_opt(I, g, d):
     """
@@ -207,6 +204,7 @@ def derivative_of_gaussian_xy(Ix, Iy):
 
 def harrisResponse_opt(I, alpha, filter_constants_D, filter_constants_I): 
 
+
     """
     I: image in grayscale 
     sigma_D and _I : sigmas to use for the first and second derivatives
@@ -224,3 +222,4 @@ def harrisResponse_opt(I, alpha, filter_constants_D, filter_constants_I):
     response = (Ixxw*Iyyw - (Ixyw*Ixyw)) - alpha*(Ixxw+Iyyw)*(Ixxw+Iyyw)
 
     return response
+
