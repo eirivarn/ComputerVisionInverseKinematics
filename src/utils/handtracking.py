@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
-import numpy as np
-from hand_pose_utils import *
+from src.utils.hand_pose_utils import *
+
 
 # Initialiser MediaPipe Hands
 mp_hands = mp.solutions.hands
