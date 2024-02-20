@@ -14,7 +14,6 @@ hands = mp_hands.Hands(static_image_mode=False,
 fig, ax = plt.subplots()
 plt.ion()
 
-
 def hand_tracking_and_control_robot_combined():
     cap = cv2.VideoCapture(0)
     middle_finger_counter = 0
