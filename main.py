@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from src.utils.hand_pose_utils import thumb_down, hand_open, closed_fist, middle_finger
 from src.utils.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm, get_hand_position
 
+
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=False,
                        max_num_hands=1,
@@ -30,6 +31,7 @@ def hand_tracking_and_control_robot_combined():
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         hand_position_detected = False
+        end_effector_closed = True
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 mp.solutions.drawing_utils.draw_landmarks(
@@ -48,9 +50,11 @@ def hand_tracking_and_control_robot_combined():
                 if hand_open(hand_landmarks, image_width, image_height):
                     print("Hand open detected")
                     hand_position_detected = True
+                    end_effector_closed = False
                 if closed_fist(hand_landmarks, image_width, image_height, 100):
                     print("Closed fist detected")
                     hand_position_detected = True
+                    end_effector_closed = True
                 if middle_finger(hand_landmarks):
                     print("Middle finger detected")
                     middle_finger_counter += 1
@@ -63,7 +67,7 @@ def hand_tracking_and_control_robot_combined():
                 q = calculate_inverse_kinematics(
                     hand_pos_px, image.shape[1], image.shape[0])
                 if q is not None:
-                    draw_robot_arm(q, ax)
+                    draw_robot_arm(q, ax, end_effector_closed)
 
         if not hand_position_detected:
             print("No hand gesture detected")
