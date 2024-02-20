@@ -126,7 +126,7 @@ def hand_tracking_and_control_robot():
 
     cap.release()
     cv2.destroyAllWindows()
-    plt.ioff()  # Slå av interaktiv modus
+    plt.ioff()  
 
 
 hand_tracking_and_control_robot()
