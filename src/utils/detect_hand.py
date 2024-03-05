@@ -49,7 +49,7 @@ def image_processing(filtred_frame, fgbg):
     fgmask = fgbg.apply(gray)
     _, thresh = cv2.threshold(fgmask, 100, 255, cv2.THRESH_BINARY)
     return cv2.GaussianBlur(thresh, (5, 5), 0)
-    
+     
 #  Process contours if any are found
 def process_contours(contours, frame, window_name):
     min_area = cv2.getTrackbarPos('Min Contour Area', window_name)
@@ -87,7 +87,7 @@ def process_contours(contours, frame, window_name):
     
 # Main function to detect and track the largest moving contour with live HSV tuning
 def detect_largest_moving_contour_with_tuning():
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture(1)
     if not video.isOpened():
         print("Error: Could not open video source.")
         return
