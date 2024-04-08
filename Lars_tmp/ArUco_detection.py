@@ -25,8 +25,9 @@ class ArUcoDetection:
 
         parameters = cv.aruco.DetectorParameters()
         arucoDict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_6X6_250)
+        detector = cv.aruco.ArucoDetector(arucoDict, parameters)
 
-        self.allCorners, self.ids, rejectedImgPoints = cv.aruco.detectMarkers(gray, arucoDict, parameters=parameters)
+        self.allCorners, self.ids, rejectedImgPoints = detector.detectMarkers(gray)
         self.calcCenters()
 
         if len(self.allCorners) > 0:
@@ -84,7 +85,7 @@ class ArUcoDetection:
 def main():
     detector = ArUcoDetection('open1')
 
-    filename = 'images/open1ArUco.png'
+    filename = 'Lars_tmp/images/open1ArUco.png'
     detector.readImage(filename)
 
     detector.detectMarker()

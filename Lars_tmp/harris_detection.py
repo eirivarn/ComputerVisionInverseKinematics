@@ -1,6 +1,6 @@
 import numpy as np
 import cv2 as cv
-filename = 'images/open1ArUco.png'
+filename = 'Lars_tmp/images/open1ArUco.png'
 img = cv.imread(filename)
 # img = cv.resize(img, (0,0), fx = 0.1, fy = 0.1)#, interpolation=cv.INTER_AREA)(3508%10, 4961%10)
 gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
