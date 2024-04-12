@@ -1,6 +1,6 @@
 import cv2
 import mediapipe as mp
-from src.utils.hand_pose_utils import *
+from hand_pose_utils import *
 
 
 # Initialiser MediaPipe Hands
