@@ -1,33 +1,27 @@
 import cv2
 import mediapipe as mp
-from matplotlib import pyplot as plt
 from src.utils.hand_pose_utils import thumb_down, hand_open, closed_fist, middle_finger
 from src.utils.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm, get_hand_position
 
-
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=False,
-                       max_num_hands=1,
-                       min_detection_confidence=0.5,
-                       min_tracking_confidence=0.5)
+                        max_num_hands=1,
+                        min_detection_confidence=0.5,
+                        min_tracking_confidence=0.5)
 
-fig, ax = plt.subplots()
-plt.ion()
 
 def hand_tracking_and_control_robot_combined():
     cap = cv2.VideoCapture(0)
     middle_finger_counter = 0
     while cap.isOpened():
+        
         success, image = cap.read()
         if not success:
-            print("Ignoring empty camera frame.")
             continue
 
         image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
-        results = hands.process(image)
-
-        image.flags.writeable = True
+        results = hands.process(image)  # Make sure 'hands' is initialized correctly before this line
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         hand_position_detected = False
         end_effector_closed = True
@@ -61,23 +55,20 @@ def hand_tracking_and_control_robot_combined():
                 if not middle_finger(hand_landmarks):
                     middle_finger_counter = 0
 
-                hand_pos_px = get_hand_position(
-                    hand_landmarks, image.shape[1], image.shape[0])
-                q = calculate_inverse_kinematics(
-                    hand_pos_px, image.shape[1], image.shape[0])
+                hand_pos_px = get_hand_position(hand_landmarks, image.shape[1], image.shape[0])
+                q = calculate_inverse_kinematics(hand_pos_px, image.shape[1], image.shape[0])
                 if q is not None:
                     image = draw_robot_arm(image, q, end_effector_closed)  # Draw the robot arm on the image
-
-
         if not hand_position_detected:
             print("No hand gesture detected")
-
+        
         cv2.imshow("Hand Tracking", image)
         if middle_finger_counter > 10 or cv2.waitKey(5) & 0xFF == 27:
             break
 
     cap.release()
     cv2.destroyAllWindows()
+    
 
-
-hand_tracking_and_control_robot_combined()
+if __name__ == "__main__":
+    hand_tracking_and_control_robot_combined()

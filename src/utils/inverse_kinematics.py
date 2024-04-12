@@ -8,8 +8,7 @@ import matplotlib.patches as patches
 def get_hand_position(hand_landmarks, image_width, image_height):
     wrist_landmark = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.WRIST]
     x = wrist_landmark.x * image_width
-    y = image_height - (wrist_landmark.y * image_height)
-    print(f"Hand position: ({x}, {y})")
+    y = image_height + (wrist_landmark.y * image_height)
     return np.array([x, y])
 
 
@@ -35,19 +34,6 @@ def calculate_inverse_kinematics(target_pos_px, image_width, image_height):
     return np.array([theta1, theta2])
 
 
-# Initialiser MediaPipe Hands
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1,
-                       min_detection_confidence=0.5, min_tracking_confidence=0.5)
-
-
-# Forbered plotting
-fig, ax = plt.subplots()
-plt.ion()  # Slå på interaktiv modus for sanntidsplotting
-
-
-import matplotlib.patches as patches
-
 def draw_robot_arm(image, q, end_effector_closed):
     a1, a2 = 200, 200  # Arm lengths in pixels
     center_x, center_y = image.shape[1] // 2, image.shape[0] // 2  # Center of the image
@@ -64,7 +50,7 @@ def draw_robot_arm(image, q, end_effector_closed):
 
     # Draw end-effector based on hand open/closed state
     effector_length = 40
-    angle_offset = 0.2  # Radians for the gripper opening
+    angle_offset = 0.3  # Radians for the gripper opening
     if end_effector_closed:
         angle_offset = 0  # No offset, closed gripper
 
@@ -81,13 +67,13 @@ def draw_robot_arm(image, q, end_effector_closed):
     return image
 
 
-
+# Function only used for testing, REMEMBER TO ALWAYS REMOVE CALLS TO THIS FUNCTION IN THIS FILE
 def hand_tracking_and_control_robot():
     cap = cv2.VideoCapture(0)
     mp_hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=1,
                                         min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-    end_effector_closed = True
+    end_effector_closed = False
     
     while cap.isOpened():
         success, image = cap.read()
@@ -114,6 +100,4 @@ def hand_tracking_and_control_robot():
 
     cap.release()
     cv2.destroyAllWindows()
-
-hand_tracking_and_control_robot()
 

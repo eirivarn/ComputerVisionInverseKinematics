@@ -47,11 +47,12 @@ def process_contours(contours, frame, window_name):
     min_area = cv2.getTrackbarPos('Min Contour Area', window_name)
     max_area = cv2.getTrackbarPos('Max Contour Area', window_name)
 
-    # Filter contours
+    # Filter contours based on the area
     valid_contours = [c for c in contours if min_area < cv2.contourArea(c) < max_area]
     if not valid_contours:
-        return
+        return None  # Return None if no valid contours found
 
+    largest_contour = None
     # Calculate distances from last_centroid for each valid contour
     if last_centroid is not None:
         contours_distances = []
@@ -70,7 +71,7 @@ def process_contours(contours, frame, window_name):
         # Just find the largest contour by area
         largest_contour = max(valid_contours, key=cv2.contourArea)
 
-    # If a suitable contour is found, draw it
+    # If a suitable contour is found, update last_centroid and return its center
     if largest_contour is not None:
         cv2.drawContours(frame, [largest_contour], -1, (50, 255, 0), 3)
         M = cv2.moments(largest_contour)
@@ -79,6 +80,9 @@ def process_contours(contours, frame, window_name):
             cY = int(M["m01"] / M["m00"])
             last_centroid = np.array([cX, cY])
             cv2.circle(frame, (cX, cY), 5, (0, 0, 255), -1)
+            return (cX, cY)  # Return the centroid coordinates
+
+    return None  # Return None if no contour met the criteria
 
 
 def detect_largest_moving_contour_with_tuning():
@@ -113,4 +117,3 @@ def detect_largest_moving_contour_with_tuning():
 
     video.release()
 
-detect_largest_moving_contour_with_tuning()
