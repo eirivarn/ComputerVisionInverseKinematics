@@ -66,7 +66,8 @@ def hand_tracking_and_control_robot_combined():
                 q = calculate_inverse_kinematics(
                     hand_pos_px, image.shape[1], image.shape[0])
                 if q is not None:
-                    draw_robot_arm(q, ax, end_effector_closed)
+                    image = draw_robot_arm(image, q, end_effector_closed)  # Draw the robot arm on the image
+
 
         if not hand_position_detected:
             print("No hand gesture detected")
