@@ -1,11 +1,19 @@
 import numpy as np
 import cv2
 import mediapipe as mp
-from matplotlib import pyplot as plt 
-import matplotlib.patches as patches
-
 
 def get_hand_position(hand_landmarks, image_width, image_height):
+    """
+    Calculate the pixel position of the wrist landmark on an image.
+    
+    Args:
+    hand_landmarks (mediapipe.HandLandmarks): Detected hand landmarks.
+    image_width (int): The width of the image where landmarks were detected.
+    image_height (int): The height of the image where landmarks were detected.
+    
+    Returns:
+    np.array: The (x, y) coordinates of the wrist landmark.
+    """
     wrist_landmark = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.WRIST]
     x = wrist_landmark.x * image_width
     y = image_height + (wrist_landmark.y * image_height)
@@ -13,19 +21,31 @@ def get_hand_position(hand_landmarks, image_width, image_height):
 
 
 def calculate_inverse_kinematics(target_pos_px, image_width, image_height):
-    # Konverter pikselposisjon til "meter" i robotens koordinatsystem
+    """
+    Convert a pixel position to "meters" in the robot coordinate system and calculate inverse kinematics.
+
+    Args:
+    target_pos_px (np.array): The target position in pixel coordinates.
+    image_width (int): Width of the image to scale the position.
+    image_height (int): Height of the image to scale the position.
+
+    Returns:
+    np.array: Joint angles (theta1, theta2) in radians, or None if the target is out of reach.
+    """
+    # Convert pixel position to normalized device coordinates in the range [-1, 1]
     scale_x, scale_y = 2.0 / image_width, 2.0 / image_height
     x, y = target_pos_px[0] * scale_x - 1, target_pos_px[1] * \
-        scale_y - 1  # Juster slik at (0,0) er i midten
+        scale_y - 1  # Adjust so that (0, 0) is in the center
+        
+    a1, a2 = 0.5, 0.5  # Arm lengths in meters
+    d = np.sqrt(x**2 + y**2) # Distance from the base to the target position
 
-    # Beregn invers kinematikk (forenklet for 2D planar robot)
-    a1, a2 = 0.5, 0.5  # Armens lengder
-    d = np.sqrt(x**2 + y**2)
-
+    # Check if the target is reachable
     if d > (a1 + a2):
-        print("Målet er utenfor rekkevidde.")
+        print("The target position is out of reach for the robot arm.")
         return None
 
+    # Calculate joint angles using cosine law
     cos_theta2 = (d**2 - a1**2 - a2**2) / (2 * a1 * a2)
     theta2 = np.arccos(cos_theta2)
     theta1 = np.arctan2(y, x) - np.arctan2(a2 *
@@ -35,6 +55,17 @@ def calculate_inverse_kinematics(target_pos_px, image_width, image_height):
 
 
 def draw_robot_arm(image, q, end_effector_closed):
+    """
+    Draw a simplistic robot arm on an image.
+    
+    Args:
+    image (np.array): The image to draw the robot arm on.
+    q (np.array): The joint angles (theta1, theta2) in radians.
+    end_effector_closed (bool): Whether the end effector (gripper) is closed.
+
+    Returns:
+    np.array: The image with the robot arm drawn on it.
+    """
     a1, a2 = 200, 200  # Arm lengths in pixels
     center_x, center_y = image.shape[1] // 2, image.shape[0] // 2  # Center of the image
 
