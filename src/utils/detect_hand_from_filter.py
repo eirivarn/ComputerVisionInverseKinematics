@@ -33,24 +33,34 @@ def apply_hsv_filter(frame, window_name):
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
     return cv2.bitwise_and(frame, frame, mask=mask)
 
-def image_processing(filtered_frame, fgbg):
-    gray = cv2.cvtColor(filtered_frame, cv2.COLOR_BGR2GRAY)
-    fgmask = fgbg.apply(gray)
-    _, thresh = cv2.threshold(fgmask, 100, 255, cv2.THRESH_BINARY)
-    return cv2.GaussianBlur(thresh, (5, 5), 0)
-
 # Initialize last known centroid
 last_centroid = None
+
+def estimate_hand_open_or_closed(contour):
+    rect = cv2.minAreaRect(contour)
+    box = cv2.boxPoints(rect)
+    box = np.int0(box)
+    (x, y), (width, height), angle = rect
+    
+    
+    aspect_ratio = max(width, height) / min(width, height)
+    area_contour = cv2.contourArea(contour)
+    area_bbox = width * height
+    solidity = area_contour / area_bbox
+
+    
+    if aspect_ratio >= 1.7 and solidity < 0.55:  
+        return "Open"
+    return "closed"
 
 def process_contours(contours, frame, window_name):
     global last_centroid
     min_area = cv2.getTrackbarPos('Min Contour Area', window_name)
     max_area = cv2.getTrackbarPos('Max Contour Area', window_name)
-
-    # Filter contours based on the area
     valid_contours = [c for c in contours if min_area < cv2.contourArea(c) < max_area]
+
     if not valid_contours:
-        return None  # Return None if no valid contours found
+        return None
 
     largest_contour = None
     # Calculate distances from last_centroid for each valid contour
@@ -73,6 +83,7 @@ def process_contours(contours, frame, window_name):
 
     # If a suitable contour is found, update last_centroid and return its center
     if largest_contour is not None:
+        hand_state = estimate_hand_open_or_closed(largest_contour)
         cv2.drawContours(frame, [largest_contour], -1, (50, 255, 0), 3)
         M = cv2.moments(largest_contour)
         if M["m00"] != 0:
@@ -80,40 +91,38 @@ def process_contours(contours, frame, window_name):
             cY = int(M["m01"] / M["m00"])
             last_centroid = np.array([cX, cY])
             cv2.circle(frame, (cX, cY), 5, (0, 0, 255), -1)
-            return (cX, cY)  # Return the centroid coordinates
+            return (cX, cY), largest_contour
 
     return None  # Return None if no contour met the criteria
 
 
 def detect_largest_moving_contour_with_tuning():
-    global last_centroid
-    video = cv2.VideoCapture(0)
-    if not video.isOpened():
-        print("Error: Could not open video source.")
-        return
-
-    fgbg = cv2.createBackgroundSubtractorMOG2(history=500, varThreshold=16, detectShadows=True)
-
+    cap = cv2.VideoCapture(0)
     cv2.namedWindow('HSV Tuner')
     create_hsv_trackbars('HSV Tuner')
+    global last_centroid
+    last_centroid = None
 
     while True:
-        ret, frame = video.read()
+        ret, frame = cap.read()
         if not ret:
             break
 
         filtered_frame = apply_hsv_filter(frame, 'HSV Tuner')
-        cv2.imshow('Filtered', filtered_frame)
+        gray = cv2.cvtColor(filtered_frame, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY)
 
-        thresh = image_processing(filtered_frame, fgbg)
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if contours:
+            centroid, hand_status = process_contours(contours, frame, 'HSV Tuner')
+            if centroid:
+                cv2.circle(frame, tuple(centroid), 5, (0, 0, 255), -1)
 
-        contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        process_contours(contours, frame, 'HSV Tuner')
-
-        cv2.imshow('Original', frame)
+        cv2.imshow('Filtered Hand View', filtered_frame)
+        cv2.imshow('Original View', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    video.release()
-
+    cap.release()
+    cv2.destroyAllWindows()

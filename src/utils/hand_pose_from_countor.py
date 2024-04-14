@@ -8,14 +8,14 @@ def estimate_hand_open_or_closed(contour):
     box = np.int0(box)
     (x, y), (width, height), angle = rect
     
-    # Calculate aspect ratio and solidity
+    
     aspect_ratio = max(width, height) / min(width, height)
     area_contour = cv2.contourArea(contour)
     area_bbox = width * height
     solidity = area_contour / area_bbox
 
-    # Define more refined thresholds or conditions
-    if aspect_ratio >= 1.7 and solidity < 0.55:  # Considered open if elongated and not very solid
+    
+    if aspect_ratio >= 1.7 and solidity < 0.55:  
         return "Open"
     return "closed"
 
