@@ -71,6 +71,7 @@ stack-data==0.6.3
 swift-sim==1.1.0
 sympy==1.12
 tenacity==8.2.3
+tk==0.1.0
 tornado==6.4
 traitlets==5.14.1
 typing_extensions==4.9.0

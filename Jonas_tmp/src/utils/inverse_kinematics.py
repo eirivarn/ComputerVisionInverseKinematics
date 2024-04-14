@@ -1,16 +1,16 @@
 from roboticstoolbox import DHRobot, RevoluteDH
 import numpy as np
 import cv2
+# import mediapipe as mp
 from matplotlib import pyplot as plt 
 import matplotlib.patches as patches
-import mediapipe as mp
 
 
-def get_hand_position(hand_landmarks, image_width, image_height):
-    wrist_landmark = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.WRIST]
-    x = wrist_landmark.x * image_width
-    y = image_height - (wrist_landmark.y * image_height)
-    return np.array([x, y])
+# def get_hand_position(hand_landmarks, image_width, image_height):
+#     wrist_landmark = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.WRIST]
+#     x = wrist_landmark.x * image_width
+#     y = image_height - (wrist_landmark.y * image_height)
+#     return np.array([x, y])
 
 
 def calculate_inverse_kinematics(target_pos_px, image_width, image_height):
@@ -35,15 +35,15 @@ def calculate_inverse_kinematics(target_pos_px, image_width, image_height):
     return np.array([theta1, theta2])
 
 
-# Initialiser MediaPipe Hands
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1,
-                       min_detection_confidence=0.5, min_tracking_confidence=0.5)
+# # Initialiser MediaPipe Hands
+# mp_hands = mp.solutions.hands
+# hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1,
+#                        min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 
-# Forbered plotting
-fig, ax = plt.subplots()
-plt.ion()  # Slå på interaktiv modus for sanntidsplotting
+# # Forbered plotting
+# fig, ax = plt.subplots()
+# plt.ion()  # Slå på interaktiv modus for sanntidsplotting
 
 
 import matplotlib.patches as patches
@@ -55,7 +55,7 @@ def draw_robot_arm(q, ax, end_effector_closed):
     joint2 = (joint1[0] + a2 * np.cos(q[0] + q[1]), joint1[1] + a2 * np.sin(q[0] + q[1]))
 
     # Clear previous drawing
-    ax.clear()
+    # ax.clear()
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
 
