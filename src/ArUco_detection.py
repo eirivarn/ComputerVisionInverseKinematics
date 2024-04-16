@@ -11,7 +11,7 @@ class ArUcoDetection:
         self.allCorners = None
         self.ids = None
         self.arucoSizeRL = 1.7 #cm
-        self.closedDistTrhereshold = 1.5 #cm
+        self.closedDistTrhereshold = 3 #cm
         
 
     def generateArUcoPNG(self, markerID):
@@ -31,31 +31,28 @@ class ArUcoDetection:
         detector = cv.aruco.ArucoDetector(arucoDict, parameters)
 
         self.allCorners, self.ids, rejectedImgPoints = detector.detectMarkers(gray)
-        print('allCorners:', self.allCorners)
 
         if len(self.allCorners) > 0:
-            self.calcCenters()
-            cv.aruco.drawDetectedMarkers(self.img, self.allCorners, self.ids)
+            self.centers = self.calcCenters()
+            # cv.aruco.drawDetectedMarkers(self.img, self.allCorners, self.ids)
         else:
             self.centers = []
-            # print("No ArUco markers detected")
 
 
     def findDistOfMarkers(self):
-        # print('centers: ', self.centers)
-        if len(self.allCorners)==2:
+        if len(self.allCorners)>=2:
             imgSize = self.getImgSize()
             scalar = self.calcScalar(self.allCorners, imgSize)
             xy_dist = np.absolute(self.centers[0] - self.centers[1])
             dist = round(np.sqrt(xy_dist[0]**2+xy_dist[1]**2), 2)
-            print(dist)
-            realDist = round(dist*self.arucoSizeRL/scalar, 2)
-            self.img = cv.line(self.img, self.centers[0], self.centers[1], color=(255, 0, 0), thickness=2)
+            realDist = abs(round(dist*self.arucoSizeRL/scalar, 2))
+            # self.img = cv.line(self.img, self.centers[0], self.centers[1], color=(255, 0, 0), thickness=2)
             centerLine =  self.centers[0] + (self.centers[1]-self.centers[0])//2
             self.img = cv.putText(self.img, f'{realDist}cm', centerLine, cv.FONT_HERSHEY_SIMPLEX , 1, (255, 0, 0) , 1, cv.LINE_AA)
-            # self.plotRes()
             self.setHandState(realDist)
             self.setHandCenter(self.centers)
+            self.img = cv.putText(self.img, f'Hand is open: {self.handOpen}', (10, 30), cv.FONT_HERSHEY_SIMPLEX , 1, (255, 0, 0) , 1, cv.LINE_AA)
+            self.img = cv.circle(self.img, self.handCenter, radius=5, color=(0, 0, 255), thickness=-5) #plot the hand center
 
     def setHandState(self, realDist):
         if realDist < self.closedDistTrhereshold:
@@ -70,10 +67,12 @@ class ArUcoDetection:
             self.handCenter = centers[0]
 
     def calcCenters(self):
+        centers = []
         for corners in self.allCorners:
             center = self.calcCenter(corners)
-            self.centers.append(center)
+            centers.append(center)
             self.img = cv.circle(self.img, center, radius=5, color=(0, 0, 255), thickness=-5) #plot the centers
+        return centers
 
     def calcScalar(self, allCorners, imgSize):
         sizes = []
@@ -106,14 +105,9 @@ class ArUcoDetection:
         '''Returns the center of the hand and true/false if the hand is open or closed'''
 
         self.img = image
-        # try:
         self.detectMarker()
         self.findDistOfMarkers()
         return self.handCenter, self.handOpen
-        # except IndexError:
-        #     print("index errror")
-        #     return None, None
-
 
 
 #Local test of one image:
