@@ -4,7 +4,10 @@ from threading import Thread, Event
 import cv2
 from tkinter import messagebox
 from src.ArUco_detection import ArUcoDetection
-# from src.utils.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm, get_hand_position
+from filter_magic import main as filter_main
+from src.utils.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm
+from mediapipe_magic import hand_tracking_and_control_robot_combined
+
 
 
 class App:
@@ -67,7 +70,7 @@ class App:
             if not success:
                 print("Ignoring empty camera frame.")
                 continue
-
+            display = False
             # Perform wanted detection method:
             if self.detectionMethod == None:
                 print("No detection method selected")
@@ -75,11 +78,13 @@ class App:
                 self.googleHandRecog()
             elif self.detectionMethod == "aruco":    
                 self.arucoHandRecog()
+                display = True
             elif self.detectionMethod == "filter":
                 self.filterHandRecog()
             
             # Display the resulting frame
-            cv2.imshow("Hand Tracking", self.image)
+            if display:
+                cv2.imshow("Hand Tracking", self.image)
 
             # Stop the video stream on 'q' key press
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -92,24 +97,25 @@ class App:
 
 
     def googleHandRecog(self):
-        pass
+        hand_tracking_and_control_robot_combined()
 
     def arucoHandRecog(self):
         handCenter, openState = self.arucoDetector.getHandInfo(self.image)
         if handCenter is not None:
+            # handCenter = (handCenter[0], self.image.shape[1]/2 - handCenter[1])
             self.drawInversedKinematics(handCenter, openState)
 
     def filterHandRecog(self):
-        pass
+        filter_main()
 
     def drawInversedKinematics(self, handCenter, openState):
-        # if handCenter is not None:
-            # q = calculate_inverse_kinematics(handCenter, self.image.shape[1], self.image.shape[0])
-            # if q is not None:
-            #     draw_robot_arm(q, self.image, openState)
+        if handCenter is not None:
+            q = calculate_inverse_kinematics(handCenter, self.image.shape[1], self.image.shape[0])
+            if q is not None:
+                draw_robot_arm(self.image, q, openState)
 
         # print('center:', handCenter, 'open:', openState)
-        pass
+        
 
 
     def quitApp(self):

@@ -66,6 +66,7 @@ def draw_robot_arm(image, q, end_effector_closed):
     Returns:
     np.array: The image with the robot arm drawn on it.
     """
+    print(image.shape)
     a1, a2 = 200, 200  # Arm lengths in pixels
     center_x, center_y = image.shape[1] // 2, image.shape[0] // 2  # Center of the image
 
