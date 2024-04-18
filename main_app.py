@@ -15,7 +15,7 @@ class App:
         self.cap = None
         self.image = None
         self.detectionMethod = None
-        self.stopEvent = Event() # Event to signal the thread to stop
+        self.stopEvent = Event() # Event to signal the thread to stopf
 
 
         self.window = window
@@ -117,11 +117,9 @@ class App:
         # print('center:', handCenter, 'open:', openState)
         
 
-
     def quitApp(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.window.destroy()
-
 
 if __name__ == "__main__":
     App.runGui()

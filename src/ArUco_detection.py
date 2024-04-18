@@ -44,7 +44,7 @@ class ArUcoDetection:
             imgSize = self.getImgSize()
             scalar = self.calcScalar(self.allCorners, imgSize)
             xy_dist = np.absolute(self.centers[0] - self.centers[1])
-            dist = round(np.sqrt(xy_dist[0]**2+xy_dist[1]**2), 2)
+            dist = round(np.sqrt(xy_dist[0]**2+xy_dist[1]**2), 2) ## Image distance between the ArUco markers. 
             realDist = abs(round(dist*self.arucoSizeRL/scalar, 2))
             # self.img = cv.line(self.img, self.centers[0], self.centers[1], color=(255, 0, 0), thickness=2)
             centerLine =  self.centers[0] + (self.centers[1]-self.centers[0])//2
