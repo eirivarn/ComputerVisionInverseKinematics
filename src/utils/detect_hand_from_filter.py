@@ -110,7 +110,7 @@ def process_contours(contours, frame, window_name):
                 cx = int(M["m10"] / M["m00"])
                 cy = int(M["m01"] / M["m00"])
                 centroid = np.array([cx, cy])
-                distance = np.linalg.norm(last_centroid - centroid)
+                distance = np.linalg.norm(last_centroid - centroid)**2
                 contours_distances.append((distance, c))
 
         # Find the contour with the minimum distance to last_centroid

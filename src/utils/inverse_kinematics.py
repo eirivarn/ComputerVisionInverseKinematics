@@ -16,7 +16,7 @@ def get_hand_position(hand_landmarks, image_width, image_height):
     """
     wrist_landmark = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.WRIST]
     x = wrist_landmark.x * image_width
-    y = image_height + (wrist_landmark.y * image_height)
+    y = image_height - wrist_landmark.y * image_height
     return np.array([x, y])
 
 

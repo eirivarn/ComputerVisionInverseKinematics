@@ -91,7 +91,7 @@ def closed_fist(hand_landmarks, image_width, image_height, threshold=50):
     return avg_distance < threshold
 
 
-def middle_finger(hand_landmarks):
+def quit_pose(hand_landmarks):
     middle_finger_tip = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.MIDDLE_FINGER_TIP]
     middle_finger_pip = hand_landmarks.landmark[mp.solutions.hands.HandLandmark.MIDDLE_FINGER_PIP]
 
