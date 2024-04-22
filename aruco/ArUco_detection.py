@@ -11,7 +11,7 @@ class ArUcoDetection:
         self.allCorners = None
         self.ids = None
         self.arucoSizeRL = 1.7 #cm
-        self.closedDistTrhereshold = 3 #cm
+        self.closedDistTrhereshold = 15 #cm
         
 
     def generateArUcoPNG(self, markerID):
@@ -48,7 +48,7 @@ class ArUcoDetection:
             realDist = abs(round(dist*self.arucoSizeRL/scalar, 2))
             # self.img = cv.line(self.img, self.centers[0], self.centers[1], color=(255, 0, 0), thickness=2)
             centerLine =  self.centers[0] + (self.centers[1]-self.centers[0])//2
-            self.img = cv.putText(self.img, f'{realDist}cm', centerLine, cv.FONT_HERSHEY_SIMPLEX , 1, (255, 0, 0) , 1, cv.LINE_AA)
+            # self.img = cv.putText(self.img, f'{realDist}cm', centerLine, cv.FONT_HERSHEY_SIMPLEX , 1, (255, 0, 0) , 1, cv.LINE_AA)
             self.setHandState(realDist)
             self.setHandCenter(self.centers)
             self.img = cv.putText(self.img, f'Hand is open: {self.handOpen}', (10, 30), cv.FONT_HERSHEY_SIMPLEX , 1, (255, 0, 0) , 1, cv.LINE_AA)
