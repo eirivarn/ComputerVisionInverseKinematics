@@ -10,8 +10,8 @@ class ArUcoDetection:
         self.handOpen = False
         self.allCorners = None
         self.ids = None
-        self.arucoSizeRL = 1.7 #cm
-        self.closedDistTrhereshold = 15 #cm
+        self.arucoSizeRL = 0.17 #cm
+        self.closedDistTrhereshold = 4 #cm
         
 
     def generateArUcoPNG(self, markerID):
@@ -113,11 +113,13 @@ class ArUcoDetection:
 #Local test of one image:
 def main():
     detector = ArUcoDetection('open1')
+    detector.generateArUcoPNG(1)
+    detector.generateArUcoPNG(2)
 
-    filename = 'Lars_tmp/images/open1ArUco.png'
-    detector.readImage(filename)
+    # filename = 'open1ArUco.png'
+    # detector.readImage(filename)
 
-    detector.detectMarker()
-    detector.findDistOfMarkers()
+    # detector.detectMarker()
+    # detector.findDistOfMarkers()
 
-# main()
+main()
