@@ -101,7 +101,7 @@ class App:
     def arucoHandRecog(self):
         handCenter, openState = self.arucoDetector.getHandInfo(self.image)
         if handCenter is not None:
-            # handCenter = (handCenter[0], self.image.shape[1]/2 - handCenter[1])
+            handCenter = (handCenter[0], self.image.shape[1] - handCenter[1]- self.image.shape[1]//4)
             self.drawInversedKinematics(handCenter, openState)
 
     def filterHandRecog(self):
@@ -111,6 +111,7 @@ class App:
         if handCenter is not None:
             q = calculate_inverse_kinematics(handCenter, self.image.shape[1], self.image.shape[0])
             if q is not None:
+                openState = not openState
                 draw_robot_arm(self.image, q, openState)
 
         # print('center:', handCenter, 'open:', openState)

@@ -105,5 +105,4 @@ def hand_tracking_and_control_robot_combined():
     cap.release()
     cv2.destroyAllWindows()
     
-if __name__ == "__main__":
-    hand_tracking_and_control_robot_combined()
+
