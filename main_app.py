@@ -3,11 +3,10 @@ import tkinter as tk
 from threading import Thread, Event
 import cv2
 from tkinter import messagebox
-from src.ArUco_detection import ArUcoDetection
-from filter_magic import main as filter_main
-from src.utils.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm
-from mediapipe_magic import hand_tracking_and_control_robot_combined
-
+from aruco.ArUco_detection import ArUcoDetection
+from hand_filter.filter_magic import main as filter_main
+from hand_filter.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm
+from hand_filter.mediapipe_magic import hand_tracking_and_control_robot_combined
 
 
 class App:
