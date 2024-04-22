@@ -1,6 +1,6 @@
 import cv2
 import mediapipe as mp
-from src.utils.hand_pose_utils import thumb_down, hand_open, closed_fist, middle_finger
+from src.utils.hand_pose_utils import thumb_down, hand_open, closed_fist, quit_pose
 from src.utils.inverse_kinematics import calculate_inverse_kinematics, draw_robot_arm, get_hand_position
 
 mp_hands = mp.solutions.hands
@@ -35,7 +35,7 @@ def hand_tracking_and_control_robot_combined():
     
     # Start video capture
     cap = cv2.VideoCapture(0)
-    middle_finger_counter = 0
+    quit_pose_counter = 0
     while cap.isOpened():
         
         success, image = cap.read()
@@ -79,23 +79,27 @@ def hand_tracking_and_control_robot_combined():
                     print("Closed fist detected")
                     hand_position_detected = True
                     end_effector_closed = True
-                if middle_finger(hand_landmarks):
-                    print("Middle finger detected")
-                    middle_finger_counter += 1
+                if quit_pose(hand_landmarks):
+                    print("Quit pose detected")
+                    quit_pose_counter += 1
                     hand_position_detected = True
-                if not middle_finger(hand_landmarks):
-                    middle_finger_counter = 0
+                if not quit_pose(hand_landmarks):
+                    quit_pose_counter = 0
 
                 # Calculate the robot arm position based on the hand position
                 hand_pos_px = get_hand_position(hand_landmarks, image.shape[1], image.shape[0])
+                print("Hand pose:", hand_pos_px)
+                print("Image shape:", image.shape)
                 q = calculate_inverse_kinematics(hand_pos_px, image.shape[1], image.shape[0])
                 if q is not None:
                     image = draw_robot_arm(image, q, end_effector_closed)  # Draw the robot arm on the image
+                else:
+                    print("No valid inverse kinematics solution found")
         if not hand_position_detected:
             print("No hand gesture detected")
         
         cv2.imshow("Hand Tracking", image)
-        if middle_finger_counter > 10 or cv2.waitKey(5) & 0xFF == 27:
+        if quit_pose_counter > 10 or cv2.waitKey(5) & 0xFF == 27:
             break
 
     cap.release()
